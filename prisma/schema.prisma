@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  userId       Int       @id @default(autoincrement()) @map("id")
+  email        String    @unique
+  name         String
+  password     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  refreshToken String?   @db.Text
+  lastLogin    DateTime?
+
+  WorkspacesMembers WorkspacesMembers[]
+
+  InvitedTo       Invitations[] @relation("InvitedUserRelation")
+  InvitedBy       Invitations[] @relation("InvitedByUserRelation")
+
+
+  @@map("Users")
+}
+
+model Workspaces {
+  workspaceId    Int       @id @default(autoincrement()) @map("id")
+  workspaceName  String    
+  workspaceImage String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  ownerId        Int
+
+  WorkspacesMembers WorkspacesMembers[]
+  Boards            Boards[]
+
+  Invitations      Invitations[]
+
+  @@map("Workspaces")
+}
+
+model WorkspacesMembers {
+  memberId    Int       @id @default(autoincrement()) @map("id")
+  WorkspaceId Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  UserId      Int
+
+  // Users 테이블과 관계를 설정 
+
+  User       Users      @relation(fields: [UserId], references: [userId], onDelete: Cascade)
+  Workspaces Workspaces @relation(fields: [WorkspaceId], references: [workspaceId], onDelete: Cascade)
+
+  @@map("WorkspacesMembers")
+}
+
+model Boards {
+  boardId     Int       @id @default(autoincrement()) @map("id")
+  WorkspaceId Int
+  boardName   String
+  boardColor  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  colorId  Int    
+  
+  Color    Colors   @relation("BoardToColor", fields: [colorId], references: [colorId])
+  Workspaces Workspaces @relation(fields: [WorkspaceId], references: [workspaceId], onDelete: Cascade)
+
+  Columns    Columns[]
+
+  @@map("Boards")
+}
+
+model Columns {
+  columnId    Int       @id @default(autoincrement()) @map("id")
+  BoardId     Int
+  columnName  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  columnOrder Float
+  Boards      Boards    @relation(fields: [BoardId], references: [boardId], onDelete: Cascade)
+  Cards       Cards[]
+
+  @@map("Columns")
+}
+
+model Cards {
+  cardId          Int       @id @default(autoincrement()) @map("id")
+  cardName        String
+  cardDescription String
+  imageUrl        String?
+  cardColor       String?
+  worker          String? // 배열로할지 고민*
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  cardOrder       Float
+  dueDate         DateTime
+  MemberId        Int
+  ColumnId        Int
+  colorId         Int      @unique
+  Color           Colors   @relation("CardToColor", fields: [colorId], references: [colorId])
+
+  Columns         Columns  @relation(fields: [ColumnId], references: [columnId], onDelete: Cascade)
+
+  @@map("Cards")
+}
+
+model Colors {
+  colorId     Int     @id @default(autoincrement()) @map("id")
+  startColor  String?  
+  endColor    String? 
+  backgroundUrl String?
+  Boards      Boards[]  @relation("BoardToColor")
+  Card        Cards?    @relation("CardToColor")
+}
+
+model Invitations {
+  invitationId     Int      @id @default(autoincrement()) @map("id")
+  WorkspaceId      Int
+  InvitedUserId    Int
+  InvitedByUserId  Int
+  accepted         Boolean?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  Workspace       Workspaces   @relation(fields: [WorkspaceId], references: [workspaceId], onDelete: Cascade)
+  InvitedUser     Users        @relation("InvitedUserRelation", fields: [InvitedUserId], references: [userId], onDelete: Cascade)
+  InvitedByUser   Users        @relation("InvitedByUserRelation", fields: [InvitedByUserId], references: [userId], onDelete: Cascade)
+
+  @@map("Invitations")
+}
