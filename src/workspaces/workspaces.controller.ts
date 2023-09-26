@@ -10,10 +10,10 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation } from '@nestjs/swagger';
 import { AuthRequest } from 'src/common/types/express.types';
-import { UpdateWorkspaceDto } from './dto/workspace.dto';
+import { UpdateWorkspaceDTO } from './dto/workspace.dto';
 import { WorkspacesService } from './workspaces.service';
 
-@Controller('workspaces')
+@Controller('/api/workspaces')
 export class WorkspacesController {
   constructor(private readonly workspacesService: WorkspacesService) {}
 
@@ -30,7 +30,7 @@ export class WorkspacesController {
   updateWorkspace(
     @Request() req: AuthRequest,
     @Param() workspaceId: string,
-    @Body() updateWorkspaceDto: UpdateWorkspaceDto,
+    @Body() updateWorkspaceDto: UpdateWorkspaceDTO,
   ) {
     const userId = req.user.userId;
     return this.workspacesService.updateWorkspace(

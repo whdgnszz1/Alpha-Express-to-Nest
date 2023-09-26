@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { UpdateWorkspaceDto } from './dto/workspace.dto';
+import { UpdateWorkspaceDTO } from './dto/workspace.dto';
 import { WorkspacesRepository } from './workspaces.repository';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class WorkspacesService {
   updateWorkspace = async (
     userId: number,
     workspaceId: number,
-    updateWorkspaceDto: UpdateWorkspaceDto,
+    updateWorkspaceDto: UpdateWorkspaceDTO,
   ) => {
     const existWorkspace = await this.workspacesRepository.findWorkspaceById(
       workspaceId,
