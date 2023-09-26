@@ -14,4 +14,26 @@ export class BoardsRepository {
       data: { WorkspaceId: workspaceId, boardName, colorId: randomColorId },
     });
   };
+
+  updateBoard = async (
+    boardId: number,
+    userId: number,
+    boardName: string,
+    colorId: number,
+  ) => {
+    const dataToUpdate: any = {};
+    if (boardName) {
+      dataToUpdate.boardName = boardName;
+    }
+
+    if (colorId) {
+      dataToUpdate.colorId = colorId;
+    }
+    const updatedBoard = await this.prisma.boards.update({
+      where: { boardId },
+      data: dataToUpdate,
+    });
+
+    return updatedBoard;
+  };
 }
